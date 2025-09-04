@@ -5,3 +5,5 @@ python-multipart
 pypdf
 python-docx
 spacy
+google-generativeai
+python-dotenv

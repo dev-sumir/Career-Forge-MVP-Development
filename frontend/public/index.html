@@ -3,327 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Career Forge: MVP Dashboard</title>
+    <title>Career Forge: Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
-
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@300;400&display=swap');
         :root {
-            --dark-bg: #1a1a2e;
-            --card-bg: #2a2a4a;
-            --primary-glow: #8e44ad;
-            --secondary-glow: #e0b0ff;
-            --text-color: #e0e0e0;
-            --border-color: #4a4a6e;
-            --button-color: #7b4397;
-            --button-hover-color: #6a3a83;
-            --success-color: #28a745;
-            --error-color: #dc3545;
+            --dark-bg: #10101a; --card-bg: #1a1a2e; --item-bg: #1f1f3d;
+            --primary-glow: #8e44ad; --secondary-glow: #e0b0ff; --text-color: #e0e0e0;
+            --border-color: #4a4a6e; --button-color: #7b4397; --button-hover-color: #6a3a83;
+            --success-color: #28a745; --error-color: #dc3545;
         }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--dark-bg); color: var(--text-color); margin: 0; padding: 1.5rem; }
+        .container { width: 100%; max-width: 1200px; margin: auto; background: var(--card-bg); border-radius: 12px; box-shadow: 0 0 30px rgba(142, 68, 173, 0.3); padding: 2rem; box-sizing: border-box; border: 1px solid var(--border-color); }
+        h1, h2, h3 { font-family: 'Orbitron', sans-serif; color: var(--secondary-glow); margin: 0; }
+        .dashboard-container { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto; gap: 1.5rem; grid-template-areas: "header header header" "name . rank" "summary summary summary" "experience experience experience" "skills skills graph-quests"; }
+        .grid-header { grid-area: header; text-align: center; margin-bottom: 1.5rem; }
+        .grid-header h1 { font-size: 3rem; text-shadow: 0 0 10px var(--primary-glow); color: white; }
+        .grid-header p { color: var(--secondary-glow); }
+        .grid-item { background: var(--item-bg); padding: 1.5rem; border-radius: 10px; }
+        .grid-name { grid-area: name; }
+        .grid-name p { font-size: 1.1rem; color: #ccc; margin-top: 0.5rem; font-family: 'Roboto', sans-serif; }
+        .grid-rank { grid-area: rank; text-align: right; }
+        .grid-rank p { margin-top: 0.5rem; }
+        .grid-rank span { font-size: 2.5rem; color: var(--primary-glow); text-shadow: 0 0 8px var(--primary-glow); }
+        .grid-summary { grid-area: summary; }
+        .grid-summary p { margin: 0.75rem 0 0 0; font-family: 'Roboto', sans-serif; line-height: 1.6; }
+        .grid-experience { grid-area: experience; }
+        .grid-skills { grid-area: skills; }
+        .grid-graph-quests { grid-area: graph-quests; display: flex; flex-direction: column; gap: 1.5rem; background: none; padding: 0; }
+        .grid-graph { flex-grow: 1; }
+        .section-content { max-height: 200px; overflow-y: auto; margin-top: 1rem; padding-right: 1rem; }
+        .experience-item { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+        .experience-item:last-child { border-bottom: none; }
+        .experience-item p { margin: 0.25rem 0 0 0; font-family: 'Roboto', sans-serif; color: #ccc; }
+        .experience-item small { font-style: italic; }
+        .skill-category { margin-top: 1rem; }
+        .skill-list { list-style: none; padding: 0; margin: 0.75rem 0 0 0; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+        .skill-item { background-color: #5a2a88; padding: 0.4rem 0.8rem; border-radius: 5px; font-size: 0.9rem; }
+        .fade-in { animation: fadeInAnimation 0.8s ease-in-out; }
+        @keyframes fadeInAnimation { from { opacity: 0; } to { opacity: 1; } }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-glow); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .quest-item { background: var(--item-bg); padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem; }
+        .drop-zone { border: 2px dashed var(--border-color); border-radius: 10px; padding: 2.5rem; text-align: center; cursor: pointer; }
+        .drop-zone input { display: none; }
+        button { background-color: var(--button-color); color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-size: 1rem; cursor: pointer; text-transform: uppercase; font-weight: bold; width: 100%; }
+        button:disabled { background-color: #555; cursor: not-allowed; }
+        #status.error { color: var(--error-color); }
+        .quests-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .quests-header button { width: auto; }
 
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--dark-bg);
-            color: var(--text-color);
-            margin: 0;
-            padding: 2rem;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            overflow-x: hidden;
-            animation: fadeInBackground 1s ease-in-out;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 900px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 0 30px rgba(142, 68, 173, 0.3);
-            padding: 2.5rem;
-            box-sizing: border-box;
-            border: 1px solid var(--border-color);
-        }
-
-        h1 {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--text-color);
-            text-align: center;
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 0 10px var(--primary-glow), 0 0 20px var(--secondary-glow);
-            animation: glowHeader 1.5s ease-in-out infinite alternate;
-        }
-
-        .tagline {
-            text-align: center;
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            color: var(--secondary-glow);
-        }
-
-        h2 {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--primary-glow);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.7rem;
-            margin-top: 2.5rem;
-            margin-bottom: 1.5rem;
-            text-shadow: 0 0 5px rgba(142, 68, 173, 0.5);
-        }
-
-        .drop-zone {
-            border: 2px dashed var(--border-color);
-            border-radius: 10px;
-            padding: 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background-color: #3a3a5a;
-            margin-bottom: 1.5rem;
-        }
-
-        .drop-zone:hover, .drop-zone.hover {
-            border-color: var(--primary-glow);
-            box-shadow: 0 0 15px rgba(142, 68, 173, 0.6);
-            background-color: #4a4a6e;
-        }
-
-        .drop-zone p { font-size: 1.1rem; color: var(--text-color); margin: 0; }
-        .drop-zone input[type="file"] { display: none; }
-        .button-wrapper { text-align: center; margin-top: 1rem; }
-
-        button {
-            background-color: var(--button-color);
-            color: white;
-            border: none;
-            padding: 1rem 2.5rem;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: background-color 0.3s, box-shadow 0.3s;
-            text-transform: uppercase;
-            font-weight: bold;
-            box-shadow: 0 0 15px rgba(123, 67, 151, 0.4);
-        }
-
-        button:hover { background-color: var(--button-hover-color); box-shadow: 0 0 25px rgba(123, 67, 151, 0.7); }
-        button:disabled { background-color: #555; cursor: not-allowed; box-shadow: none; }
-
-        #status { text-align: center; margin-top: 1.5rem; font-weight: bold; font-size: 1.1rem; }
-        #status.success { color: var(--success-color); text-shadow: 0 0 8px rgba(40, 167, 69, 0.5); }
-        #status.error { color: var(--error-color); text-shadow: 0 0 8px rgba(220, 53, 69, 0.5); }
-
-        .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem; }
-        .skill-card h3, .quest-item h3 { margin-top: 0; color: var(--secondary-glow); font-family: 'Orbitron', sans-serif; font-size: 1.1rem; text-shadow: 0 0 3px rgba(224, 176, 255, 0.5); }
-        .skill-list { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
-        .skill-item { background-color: #5a2a88; padding: 0.3rem 0.7rem; border-radius: 5px; font-size: 0.9rem; color: white; box-shadow: 0 0 5px rgba(142, 68, 173, 0.3); }
-        .rank-display { text-align: center; font-size: 1.8rem; font-weight: bold; color: var(--primary-glow); margin-bottom: 1.5rem; text-shadow: 0 0 10px var(--primary-glow); font-family: 'Orbitron', sans-serif; }
-        .rank-display span { font-size: 2.5rem; }
-        .quest-item p { margin-top: 0.5rem; margin-bottom: 0.5rem; color: var(--text-color); }
-        .quest-item small { color: var(--secondary-glow); font-size: 0.85rem; }
-        .skill-card, .quest-item { background: #1f1f3d; padding: 1.5rem; border-radius: 10px; border: 1px solid var(--border-color); box-shadow: 0 0 10px rgba(142, 68, 173, 0.2); }
-        .quest-item { margin-bottom: 1rem; }
-
-        /* --- NEW: Loading Spinner --- */
-        .loader {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--primary-glow);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* --- NEW: Fade-in Animation --- */
-        .fade-in {
-            animation: fadeInAnimation 0.8s ease-in-out;
-        }
-
-        @keyframes fadeInAnimation {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInBackground {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* --- ENHANCED: Responsiveness --- */
-        @media (max-width: 768px) {
-            body { padding: 1rem; }
-            .container { padding: 1.5rem; }
-            h1 { font-size: 2.2rem; }
-            .tagline { font-size: 1rem; }
-            h2 { font-size: 1.5rem; }
-            .results-grid { grid-template-columns: 1fr; }
-            button { width: 100%; padding: 0.8rem 1rem; }
-            .drop-zone { padding: 1.5rem; }
-        }
+        @media (max-width: 900px) { .dashboard-container { grid-template-areas: "header header" "name rank" "summary summary" "experience experience" "skills skills" "graph-quests graph-quests"; grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 600px) { body { padding: 1rem; } .container { padding: 1rem; } .dashboard-container { grid-template-areas: "header" "name" "rank" "summary" "experience" "skills" "graph-quests"; grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Career Forge</h1>
-        <p class="tagline">Upload your resume to analyze your skills and discover your rank.</p>
-
-        <label for="resumeFile" class="drop-zone" id="dropZone">
-            <input type="file" id="resumeFile" accept=".pdf,.docx">
-            <p id="dropZoneText">Click to browse or drag & drop resume PDF/DOCX</p>
-        </label>
-
-        <div class="button-wrapper">
-            <button id="analyzeBtn" disabled>ANALYZE RESUME</button>
-        </div>
-
-        <p id="status"></p>
-        <div class="loader" id="loader" style="display: none;"></div>
-
-        <div id="results" style="display: none;">
-            <div class="results-grid">
-                <div id="profile-section">
-                    <h2>Your Profile</h2>
-                    <div id="profile-content"></div>
-                </div>
-                <div id="quests-section">
-                    <h2>Your Quests</h2>
-                    <div id="quests-content"></div>
-                </div>
+        <div id="upload-view">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h1 style="font-size: 3rem; text-shadow: 0 0 10px var(--primary-glow);">CAREER FORGE</h1>
+                <p style="color: var(--secondary-glow);">Upload your resume to analyze your skills and discover your rank.</p>
             </div>
+            <label for="resumeFile" class="drop-zone" id="dropZone">
+                <input type="file" id="resumeFile" accept=".pdf,.docx">
+                <p id="dropZoneText">Click to browse or drag & drop resume</p>
+            </label>
+            <button id="analyzeBtn" disabled>ANALYZE RESUME</button>
+            <p id="status" style="text-align:center; margin-top: 1rem;"></p>
+            <div class="loader" id="loader" style="display: none;"></div>
         </div>
+
+        <div id="dashboard-view" style="display: none;"></div>
+        <div id="quests-view" style="display: none;"></div>
     </div>
 
     <script>
         const API_URL = 'http://127.0.0.1:8000/api/v1/hackrx/run';
+        const [uploadView, dashboardView, questsView] = [document.getElementById('upload-view'), document.getElementById('dashboard-view'), document.getElementById('quests-view')];
+        const [analyzeBtn, fileInput, statusEl, dropZone, dropZoneText, loader] = [document.getElementById('analyzeBtn'), document.getElementById('resumeFile'), document.getElementById('status'), document.getElementById('dropZone'), document.getElementById('dropZoneText'), document.getElementById('loader')];
+        let selectedFile = null, radarChart = null, currentQuests = [];
 
-        const analyzeBtn = document.getElementById('analyzeBtn');
-        const fileInput = document.getElementById('resumeFile');
-        const statusEl = document.getElementById('status');
-        const resultsEl = document.getElementById('results');
-        const profileContentEl = document.getElementById('profile-content');
-        const questsContentEl = document.getElementById('quests-content');
-        const dropZone = document.getElementById('dropZone');
-        const dropZoneText = document.getElementById('dropZoneText');
-        const loader = document.getElementById('loader');
+        function showView(viewToShow) {
+            [uploadView, dashboardView, questsView].forEach(view => view.style.display = view === viewToShow ? 'block' : 'none');
+            if (viewToShow) { viewToShow.classList.add('fade-in'); }
+        }
 
-        let selectedFile = null;
-
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', () => {
-            if (fileInput.files.length > 0) {
-                selectedFile = fileInput.files[0];
+        function handleFileSelect(files) {
+            if (files.length > 0) {
+                selectedFile = files[0];
                 dropZoneText.textContent = `File selected: ${selectedFile.name}`;
                 analyzeBtn.disabled = false;
                 statusEl.textContent = '';
-                statusEl.className = '';
-            } else {
-                selectedFile = null;
-                dropZoneText.textContent = 'Click to browse or drag & drop resume PDF/DOCX';
-                analyzeBtn.disabled = true;
             }
-        });
+        }
 
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('hover'); });
-        dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('hover'); });
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', () => handleFileSelect(fileInput.files));
+        dropZone.addEventListener('dragover', (e) => e.preventDefault());
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
-            dropZone.classList.remove('hover');
             if (e.dataTransfer.files.length > 0) {
                 fileInput.files = e.dataTransfer.files;
-                fileInput.dispatchEvent(new Event('change'));
+                handleFileSelect(e.dataTransfer.files);
             }
         });
 
         analyzeBtn.addEventListener('click', async () => {
-            if (!selectedFile) {
-                statusEl.textContent = 'Please select a file first.';
-                statusEl.className = 'error';
-                return;
-            }
-
-            // --- 1. Show loader and hide old results ---
-            statusEl.style.display = 'none';
-            loader.style.display = 'block';
-            resultsEl.style.display = 'none';
-            resultsEl.classList.remove('fade-in');
-            analyzeBtn.disabled = true;
-
-            const formData = new FormData();
-            formData.append('file', selectedFile);
-
+            if (!selectedFile) { statusEl.textContent = 'Please select a file first.'; statusEl.className = 'error'; return; }
+            statusEl.textContent = ''; loader.style.display = 'block'; analyzeBtn.disabled = true;
+            const formData = new FormData(); formData.append('file', selectedFile);
             try {
                 const response = await fetch(API_URL, { method: 'POST', body: formData });
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.detail || `HTTP error! Status: ${response.status}`);
-                }
+                if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.detail || `HTTP error!`); }
                 const data = await response.json();
-
-                // --- 2. Display new results and trigger animation ---
-                displayProfile(data.profile);
-                displayQuests(data.quests);
-
-                resultsEl.style.display = 'grid';
-                resultsEl.classList.add('fade-in');
-                statusEl.textContent = '✅ Analysis Complete!';
-                statusEl.className = 'success';
-
+                displayDashboard(data);
+                displayQuests(data.quests || []);
+                showView(dashboardView);
             } catch (error) {
-                console.error('Error:', error);
-                statusEl.textContent = `❌ Error: ${error.message}`;
-                statusEl.className = 'error';
+                console.error('Error:', error); statusEl.textContent = `❌ Error: ${error.message}`; statusEl.className = 'error';
+                showView(uploadView);
             } finally {
-                // --- 3. Hide loader and re-enable button ---
-                loader.style.display = 'none';
-                statusEl.style.display = 'block';
-                analyzeBtn.disabled = false;
+                loader.style.display = 'none'; analyzeBtn.disabled = false;
             }
         });
 
-        function displayProfile(profile) {
-            let html = `<div class="rank-display">Rank: <span>${profile.main_rank}</span> - Level ${profile.level}</div>`;
-            const skillsByCategory = profile.skills.reduce((acc, skill) => {
-                acc[skill.category] = acc[skill.category] || [];
-                acc[skill.category].push(skill.name);
-                return acc;
-            }, {});
+        function displayDashboard(data) {
+            const { profile, experiences = [], summary = "No summary generated." } = data;
+
+            const skillsByCategory = (profile.skills || []).reduce((acc, skill) => { (acc[skill.category] = acc[skill.category] || []).push(skill.name); return acc; }, {});
+            const scores = {
+                TechnicalSkills: skillsByCategory['TechnicalSkills']?.length || 0,
+                SoftSkills: skillsByCategory['SoftSkills']?.length || 0,
+                Intelligence: skillsByCategory['Intelligence']?.length || 0,
+                Experience: experiences.length,
+            };
+
+            dashboardView.innerHTML = `
+                <div class="dashboard-container">
+                    <div class="grid-header"><h1>CAREER FORGE</h1><p>PROFILE</p></div>
+                    <div class="grid-name grid-item"><h2>${profile.user_name || 'User'}</h2><p>${profile.job_title || 'Aspiring Professional'}</p></div>
+                    <div class="grid-rank grid-item"><h2>RANK</h2><p><span>${profile.main_rank}</span> (LEVEL ${profile.level})</p></div>
+                    <div class="grid-summary grid-item"><h2>SUMMARY</h2><div class="section-content"><p>${summary}</p></div></div>
+                    <div class="grid-experience grid-item"><h2>EXPERIENCE</h2><div class="section-content" id="experience-list"></div></div>
+                    <div class="grid-skills grid-item"><h2>SKILLS</h2><div class="section-content" id="skills-list"></div></div>
+                    <div class="grid-graph-quests">
+                        <div class="grid-graph grid-item"><h3>GRAPH</h3><canvas id="radarChart"></canvas></div>
+                        <div class="grid-quests grid-item"><button id="viewQuestsBtn">QUESTS</button></div>
+                    </div>
+                </div>`;
+
+            document.getElementById('experience-list').innerHTML = experiences.length > 0 ? experiences.map(exp => `
+                <div class="experience-item"><h3>${exp.title} <small>(${exp.category})</small></h3><p><em>${exp.organization}</em></p><p>${exp.description}</p></div>`).join('') : '<p>No specific experiences found.</p>';
+
+            let skillsHtml = '';
             for (const category in skillsByCategory) {
-                html += `
-                    <div class="skill-card">
-                        <h3>${category.replace(/_/g, ' ')}</h3>
-                        <ul class="skill-list">
-                            ${skillsByCategory[category].map(skillName => `<li class="skill-item">${skillName}</li>`).join('')}
-                        </ul>
-                    </div>`;
+                skillsHtml += `<div class="skill-category"><h3>${category.replace(/([A-Z])/g, ' $1').trim()}</h3><ul class="skill-list">${skillsByCategory[category].map(skillName => `<li class="skill-item">${skillName}</li>`).join('')}</ul></div>`;
             }
-            profileContentEl.innerHTML = html;
+            document.getElementById('skills-list').innerHTML = skillsHtml;
+
+            document.getElementById('viewQuestsBtn').addEventListener('click', () => showView(questsView));
+            createRadarChart(scores);
         }
 
         function displayQuests(quests) {
-            if (quests.length === 0) {
-                questsContentEl.innerHTML = '<p>No quests generated at this time. Keep improving!</p>';
-                return;
-            }
-            let html = quests.map(quest => `
-                <div class="quest-item">
-                    <h3>${quest.title}</h3>
-                    <p>${quest.description}</p>
-                    <small><strong>Rewards:</strong> ${quest.rewards.join(', ')}</small>
-                </div>`).join('');
-            questsContentEl.innerHTML = html;
+            questsView.innerHTML = `
+                <div class="quests-header">
+                    <h2>YOUR QUESTS</h2>
+                    <button id="backToProfileBtn">BACK TO PROFILE</button>
+                </div>
+                <div id="quests-content" class="section-content" style="max-height: 70vh;"></div>`;
+            const contentEl = document.getElementById('quests-content');
+            contentEl.innerHTML = quests.length > 0 ? quests.map(quest => `
+                <div class="quest-item"><h3>${quest.title}</h3><p>${quest.description}</p><small><b>Rewards:</b> ${quest.rewards.join(', ')}</small></div>`).join('') : '<p>No quests generated.</p>';
+            document.getElementById('backToProfileBtn').addEventListener('click', () => showView(dashboardView));
+        }
+
+        function createRadarChart(scores) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            if (radarChart) { radarChart.destroy(); }
+            radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Technical', 'Soft Skills', 'Intelligence', 'Experience'],
+                    datasets: [{ data: [scores.TechnicalSkills, scores.SoftSkills, scores.Intelligence, scores.Experience], backgroundColor: 'rgba(142, 68, 173, 0.4)', borderColor: 'rgba(224, 176, 255, 1)' }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { r: {
+                        angleLines: { color: 'rgba(255, 255, 255, 0.2)' }, grid: { color: 'rgba(255, 255, 255, 0.2)' },
+                        pointLabels: { color: 'rgba(224, 176, 255, 1)', font: { size: 12 } },
+                        ticks: { display: false }
+                    }}
+                }
+            });
         }
     </script>
 </body>
