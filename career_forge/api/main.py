@@ -31,3 +31,4 @@ def read_root():
     if not FRONTEND_FILE_PATH.is_file():
         raise HTTPException(status_code=404, detail="Frontend file not found at: " + str(FRONTEND_FILE_PATH))
     return FileResponse(FRONTEND_FILE_PATH)
+# frontend file path is returned
