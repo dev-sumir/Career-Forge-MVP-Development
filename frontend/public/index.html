@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Forge: MVP Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
+
+        :root {
+            --dark-bg: #1a1a2e;
+            --card-bg: #2a2a4a;
+            --primary-glow: #8e44ad;
+            --secondary-glow: #e0b0ff;
+            --text-color: #e0e0e0;
+            --border-color: #4a4a6e;
+            --button-color: #7b4397;
+            --button-hover-color: #6a3a83;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow-x: hidden;
+            animation: fadeInBackground 1s ease-in-out;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(142, 68, 173, 0.3);
+            padding: 2.5rem;
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--text-color);
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px var(--primary-glow), 0 0 20px var(--secondary-glow);
+            animation: glowHeader 1.5s ease-in-out infinite alternate;
+        }
+
+        .tagline {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: var(--secondary-glow);
+        }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary-glow);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.7rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 5px rgba(142, 68, 173, 0.5);
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #3a3a5a;
+            margin-bottom: 1.5rem;
+        }
+
+        .drop-zone:hover, .drop-zone.hover {
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 15px rgba(142, 68, 173, 0.6);
+            background-color: #4a4a6e;
+        }
+
+        .drop-zone p { font-size: 1.1rem; color: var(--text-color); margin: 0; }
+        .drop-zone input[type="file"] { display: none; }
+        .button-wrapper { text-align: center; margin-top: 1rem; }
+
+        button {
+            background-color: var(--button-color);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            text-transform: uppercase;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(123, 67, 151, 0.4);
+        }
+
+        button:hover { background-color: var(--button-hover-color); box-shadow: 0 0 25px rgba(123, 67, 151, 0.7); }
+        button:disabled { background-color: #555; cursor: not-allowed; box-shadow: none; }
+
+        #status { text-align: center; margin-top: 1.5rem; font-weight: bold; font-size: 1.1rem; }
+        #status.success { color: var(--success-color); text-shadow: 0 0 8px rgba(40, 167, 69, 0.5); }
+        #status.error { color: var(--error-color); text-shadow: 0 0 8px rgba(220, 53, 69, 0.5); }
+
+        .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem; }
+        .skill-card h3, .quest-item h3 { margin-top: 0; color: var(--secondary-glow); font-family: 'Orbitron', sans-serif; font-size: 1.1rem; text-shadow: 0 0 3px rgba(224, 176, 255, 0.5); }
+        .skill-list { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .skill-item { background-color: #5a2a88; padding: 0.3rem 0.7rem; border-radius: 5px; font-size: 0.9rem; color: white; box-shadow: 0 0 5px rgba(142, 68, 173, 0.3); }
+        .rank-display { text-align: center; font-size: 1.8rem; font-weight: bold; color: var(--primary-glow); margin-bottom: 1.5rem; text-shadow: 0 0 10px var(--primary-glow); font-family: 'Orbitron', sans-serif; }
+        .rank-display span { font-size: 2.5rem; }
+        .quest-item p { margin-top: 0.5rem; margin-bottom: 0.5rem; color: var(--text-color); }
+        .quest-item small { color: var(--secondary-glow); font-size: 0.85rem; }
+        .skill-card, .quest-item { background: #1f1f3d; padding: 1.5rem; border-radius: 10px; border: 1px solid var(--border-color); box-shadow: 0 0 10px rgba(142, 68, 173, 0.2); }
+        .quest-item { margin-bottom: 1rem; }
+
+        /* --- NEW: Loading Spinner --- */
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-glow);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- NEW: Fade-in Animation --- */
+        .fade-in {
+            animation: fadeInAnimation 0.8s ease-in-out;
+        }
+
+        @keyframes fadeInAnimation {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInBackground {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* --- ENHANCED: Responsiveness --- */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .container { padding: 1.5rem; }
+            h1 { font-size: 2.2rem; }
+            .tagline { font-size: 1rem; }
+            h2 { font-size: 1.5rem; }
+            .results-grid { grid-template-columns: 1fr; }
+            button { width: 100%; padding: 0.8rem 1rem; }
+            .drop-zone { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Career Forge</h1>
+        <p class="tagline">Upload your resume to analyze your skills and discover your rank.</p>
+
+        <label for="resumeFile" class="drop-zone" id="dropZone">
+            <input type="file" id="resumeFile" accept=".pdf,.docx">
+            <p id="dropZoneText">Click to browse or drag & drop resume PDF/DOCX</p>
+        </label>
+
+        <div class="button-wrapper">
+            <button id="analyzeBtn" disabled>ANALYZE RESUME</button>
+        </div>
+
+        <p id="status"></p>
+        <div class="loader" id="loader" style="display: none;"></div>
+
+        <div id="results" style="display: none;">
+            <div class="results-grid">
+                <div id="profile-section">
+                    <h2>Your Profile</h2>
+                    <div id="profile-content"></div>
+                </div>
+                <div id="quests-section">
+                    <h2>Your Quests</h2>
+                    <div id="quests-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:8000/api/v1/hackrx/run';
+
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const fileInput = document.getElementById('resumeFile');
+        const statusEl = document.getElementById('status');
+        const resultsEl = document.getElementById('results');
+        const profileContentEl = document.getElementById('profile-content');
+        const questsContentEl = document.getElementById('quests-content');
+        const dropZone = document.getElementById('dropZone');
+        const dropZoneText = document.getElementById('dropZoneText');
+        const loader = document.getElementById('loader');
+
+        let selectedFile = null;
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                selectedFile = fileInput.files[0];
+                dropZoneText.textContent = `File selected: ${selectedFile.name}`;
+                analyzeBtn.disabled = false;
+                statusEl.textContent = '';
+                statusEl.className = '';
+            } else {
+                selectedFile = null;
+                dropZoneText.textContent = 'Click to browse or drag & drop resume PDF/DOCX';
+                analyzeBtn.disabled = true;
+            }
+        });
+
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('hover'); });
+        dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('hover'); });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('hover');
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                fileInput.dispatchEvent(new Event('change'));
+            }
+        });
+
+        analyzeBtn.addEventListener('click', async () => {
+            if (!selectedFile) {
+                statusEl.textContent = 'Please select a file first.';
+                statusEl.className = 'error';
+                return;
+            }
+
+            // --- 1. Show loader and hide old results ---
+            statusEl.style.display = 'none';
+            loader.style.display = 'block';
+            resultsEl.style.display = 'none';
+            resultsEl.classList.remove('fade-in');
+            analyzeBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+                const response = await fetch(API_URL, { method: 'POST', body: formData });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `HTTP error! Status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                // --- 2. Display new results and trigger animation ---
+                displayProfile(data.profile);
+                displayQuests(data.quests);
+
+                resultsEl.style.display = 'grid';
+                resultsEl.classList.add('fade-in');
+                statusEl.textContent = '✅ Analysis Complete!';
+                statusEl.className = 'success';
+
+            } catch (error) {
+                console.error('Error:', error);
+                statusEl.textContent = `❌ Error: ${error.message}`;
+                statusEl.className = 'error';
+            } finally {
+                // --- 3. Hide loader and re-enable button ---
+                loader.style.display = 'none';
+                statusEl.style.display = 'block';
+                analyzeBtn.disabled = false;
+            }
+        });
+
+        function displayProfile(profile) {
+            let html = `<div class="rank-display">Rank: <span>${profile.main_rank}</span> - Level ${profile.level}</div>`;
+            const skillsByCategory = profile.skills.reduce((acc, skill) => {
+                acc[skill.category] = acc[skill.category] || [];
+                acc[skill.category].push(skill.name);
+                return acc;
+            }, {});
+            for (const category in skillsByCategory) {
+                html += `
+                    <div class="skill-card">
+                        <h3>${category.replace(/_/g, ' ')}</h3>
+                        <ul class="skill-list">
+                            ${skillsByCategory[category].map(skillName => `<li class="skill-item">${skillName}</li>`).join('')}
+                        </ul>
+                    </div>`;
+            }
+            profileContentEl.innerHTML = html;
+        }
+
+        function displayQuests(quests) {
+            if (quests.length === 0) {
+                questsContentEl.innerHTML = '<p>No quests generated at this time. Keep improving!</p>';
+                return;
+            }
+            let html = quests.map(quest => `
+                <div class="quest-item">
+                    <h3>${quest.title}</h3>
+                    <p>${quest.description}</p>
+                    <small><strong>Rewards:</strong> ${quest.rewards.join(', ')}</small>
+                </div>`).join('');
+            questsContentEl.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
