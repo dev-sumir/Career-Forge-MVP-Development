@@ -16,37 +16,51 @@
         body { font-family: 'Roboto', sans-serif; background-color: var(--dark-bg); color: var(--text-color); margin: 0; padding: 1.5rem; }
         .container { width: 100%; max-width: 1200px; margin: auto; background: var(--card-bg); border-radius: 12px; box-shadow: 0 0 30px rgba(142, 68, 173, 0.3); padding: 2rem; box-sizing: border-box; border: 1px solid var(--border-color); }
         h1, h2, h3 { font-family: 'Orbitron', sans-serif; color: var(--secondary-glow); margin: 0; }
+
+        /* --- UPLOAD VIEW --- */
+        .upload-header { text-align: center; margin-bottom: 2rem; }
+        .upload-header h1 { font-size: 3rem; text-shadow: 0 0 10px var(--primary-glow); color: white; }
+        .upload-header p { color: var(--secondary-glow); }
+        /* --- FIX: Styles for the drop zone --- */
+        .drop-zone {
+            border: 2px dashed var(--border-color); border-radius: 10px; padding: 2.5rem;
+            text-align: center; cursor: pointer; transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .drop-zone:hover, .drop-zone.hover { border-color: var(--primary-glow); background-color: #2a2a4a; }
+        .drop-zone p { margin: 0; }
+        #resumeFile { display: none; }
+        .button-wrapper { margin-top: 1.5rem; }
+
+        /* --- DASHBOARD VIEW (Grid Layout) --- */
         .dashboard-container { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: auto; gap: 1.5rem; grid-template-areas: "header header header" "name . rank" "summary summary summary" "experience experience experience" "skills skills graph-quests"; }
-        .grid-header { grid-area: header; text-align: center; margin-bottom: 1.5rem; }
-        .grid-header h1 { font-size: 3rem; text-shadow: 0 0 10px var(--primary-glow); color: white; }
-        .grid-header p { color: var(--secondary-glow); }
         .grid-item { background: var(--item-bg); padding: 1.5rem; border-radius: 10px; }
+        .grid-header { grid-area: header; text-align: center; margin-bottom: 1.5rem; background: none; padding: 0; }
+        .grid-header h1 { font-size: 2.5rem; }
         .grid-name { grid-area: name; }
         .grid-name p { font-size: 1.1rem; color: #ccc; margin-top: 0.5rem; font-family: 'Roboto', sans-serif; }
         .grid-rank { grid-area: rank; text-align: right; }
-        .grid-rank p { margin-top: 0.5rem; }
         .grid-rank span { font-size: 2.5rem; color: var(--primary-glow); text-shadow: 0 0 8px var(--primary-glow); }
         .grid-summary { grid-area: summary; }
         .grid-summary p { margin: 0.75rem 0 0 0; font-family: 'Roboto', sans-serif; line-height: 1.6; }
-        .grid-experience { grid-area: experience; }
+        .grid-experience, .grid-skills { grid-area: experience; }
         .grid-skills { grid-area: skills; }
         .grid-graph-quests { grid-area: graph-quests; display: flex; flex-direction: column; gap: 1.5rem; background: none; padding: 0; }
         .grid-graph { flex-grow: 1; }
         .section-content { max-height: 200px; overflow-y: auto; margin-top: 1rem; padding-right: 1rem; }
         .experience-item { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
         .experience-item:last-child { border-bottom: none; }
-        .experience-item p { margin: 0.25rem 0 0 0; font-family: 'Roboto', sans-serif; color: #ccc; }
-        .experience-item small { font-style: italic; }
+        .experience-item p { margin: 0.25rem 0 0 0; color: #ccc; }
         .skill-category { margin-top: 1rem; }
         .skill-list { list-style: none; padding: 0; margin: 0.75rem 0 0 0; display: flex; flex-wrap: wrap; gap: 0.75rem; }
         .skill-item { background-color: #5a2a88; padding: 0.4rem 0.8rem; border-radius: 5px; font-size: 0.9rem; }
+
+        /* General styles */
         .fade-in { animation: fadeInAnimation 0.8s ease-in-out; }
         @keyframes fadeInAnimation { from { opacity: 0; } to { opacity: 1; } }
         .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-glow); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .quest-item { background: var(--item-bg); padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem; }
-        .drop-zone { border: 2px dashed var(--border-color); border-radius: 10px; padding: 2.5rem; text-align: center; cursor: pointer; }
-        .drop-zone input { display: none; }
         button { background-color: var(--button-color); color: white; border: none; padding: 1rem 2rem; border-radius: 8px; font-size: 1rem; cursor: pointer; text-transform: uppercase; font-weight: bold; width: 100%; }
         button:disabled { background-color: #555; cursor: not-allowed; }
         #status.error { color: var(--error-color); }
@@ -60,15 +74,17 @@
 <body>
     <div class="container">
         <div id="upload-view">
-            <div style="text-align: center; margin-bottom: 2rem;">
-                <h1 style="font-size: 3rem; text-shadow: 0 0 10px var(--primary-glow);">CAREER FORGE</h1>
-                <p style="color: var(--secondary-glow);">Upload your resume to analyze your skills and discover your rank.</p>
+            <div class="upload-header">
+                <h1>CAREER FORGE</h1>
+                <p>Upload your resume to analyze your skills and discover your rank.</p>
             </div>
-            <label for="resumeFile" class="drop-zone" id="dropZone">
+            <div class="drop-zone" id="dropZone">
                 <input type="file" id="resumeFile" accept=".pdf,.docx">
                 <p id="dropZoneText">Click to browse or drag & drop resume</p>
-            </label>
-            <button id="analyzeBtn" disabled>ANALYZE RESUME</button>
+            </div>
+            <div class="button-wrapper">
+                <button id="analyzeBtn" disabled>ANALYZE RESUME</button>
+            </div>
             <p id="status" style="text-align:center; margin-top: 1rem;"></p>
             <div class="loader" id="loader" style="display: none;"></div>
         </div>
@@ -97,11 +113,14 @@
             }
         }
 
-        dropZone.addEventListener('click', () => fileInput.click());
+        // --- Event Listeners ---
+        dropZone.addEventListener('click', () => fileInput.click()); // Clicking the div now opens the file dialog
         fileInput.addEventListener('change', () => handleFileSelect(fileInput.files));
-        dropZone.addEventListener('dragover', (e) => e.preventDefault());
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('hover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('hover'));
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
+            dropZone.classList.remove('hover');
             if (e.dataTransfer.files.length > 0) {
                 fileInput.files = e.dataTransfer.files;
                 handleFileSelect(e.dataTransfer.files);
