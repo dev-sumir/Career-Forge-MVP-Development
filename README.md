@@ -16,7 +16,7 @@ Career Forge is an AI-powered platform that turns resume analysis into a gamifie
 ## 🛠️ Tech Stack
 
 - **Backend**: FastAPI, Uvicorn  
-- **AI/NLP**: Google Gemini 1.5 Pro, spaCy  
+- **AI/NLP**: Google Gemini 1.5 Flash, spaCy  
 - **Frontend**: HTML5, CSS3, JavaScript, Chart.js  
 - **Data Handling**: Pydantic, python-dotenv  
 - **File Parsing**: pypdf, python-docx  
