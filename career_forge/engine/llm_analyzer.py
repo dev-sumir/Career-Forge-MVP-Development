@@ -42,7 +42,7 @@ def analyze_resume_with_llm(resume_text: str) -> LLMAnalysis:
     if not os.environ.get("GOOGLE_API_KEY"):
         raise ConnectionError("Google AI client is not configured. Please set your GOOGLE_API_KEY.")
 
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    model = genai.GenerativeModel('gemini-2.0-flash')
 
     master_prompt = f"""
     You are an expert tech recruiter analyzing a resume. Provide a structured analysis in a valid JSON format.

@@ -1,0 +1,427 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@300;400;700&display=swap');
+
+:root {
+    --dark-bg: #10101a;
+    --card-bg: #1a1a2e;
+    --item-bg: #1f1f3d;
+    --primary-glow: #8e44ad; /* Purple */
+    --secondary-glow: #e0b0ff; /* Light purple */
+    --text-color: #e0e0e0;
+    --border-color: #4a4a6e;
+    --button-color: #7b4397;
+    --button-hover-color: #6a3a83;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+}
+
+/* --- BASE STYLES --- */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--dark-bg);
+    color: var(--text-color);
+    margin: 0;
+    padding: 1.5rem;
+    display: flex; /* Centers the container */
+    justify-content: center;
+    align-items: flex-start; /* Aligns to top of viewport */
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px; /* Limits overall width */
+    margin: auto;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(142, 68, 173, 0.3); /* Subtle glow effect */
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+h1, h2, h3 {
+    font-family: 'Orbitron', sans-serif;
+    color: var(--secondary-glow);
+    margin: 0;
+}
+
+button {
+    background-color: var(--button-color);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    width: 100%;
+    transition: background-color 0.2s;
+    letter-spacing: 0.05em;
+}
+
+button:hover {
+    background-color: var(--button-hover-color);
+}
+
+button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+}
+
+.message.error {
+    color: var(--error-color);
+}
+.message.success {
+    color: var(--success-color);
+}
+
+/* --- UPLOAD VIEW SPECIFIC STYLES --- */
+.upload-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.upload-header h1 {
+    font-size: 3rem;
+    text-shadow: 0 0 10px var(--primary-glow);
+    color: white; /* Ensures primary title is bright */
+}
+
+.upload-header p {
+    color: var(--secondary-glow);
+    margin-top: 0.25rem;
+}
+
+.drop-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: 10px;
+    padding: 2.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem; /* Space between drop zone and button */
+}
+
+.drop-zone:hover, .drop-zone.hover {
+    border-color: var(--primary-glow);
+    background-color: rgba(142, 68, 173, 0.1); /* Subtle background on hover */
+}
+
+#resumeFile {
+    display: none; /* Hide the actual file input */
+}
+
+.drop-zone p {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #ccc;
+}
+
+.loader {
+    border: 5px solid #f3f3f3; /* Light grey */
+    border-top: 5px solid var(--primary-glow); /* Purple */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- DASHBOARD VIEW (Grid Layout from your drawing) --- */
+.dashboard-container {
+    display: grid;
+    /* Define the grid columns and rows and their areas based on your drawing */
+    grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+    grid-template-rows: auto; /* Rows will size automatically */
+    gap: 1.5rem; /* Space between grid items */
+    grid-template-areas:
+        "header header header"
+        "name name rank"
+        "summary summary summary"
+        "experience experience experience"
+        "skills skills graph-quests";
+}
+
+.grid-item {
+    background: var(--item-bg);
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(142, 68, 173, 0.1); /* Item subtle glow */
+    border: 1px solid var(--border-color);
+}
+
+/* Assign grid areas to specific items */
+.grid-header {
+    grid-area: header;
+    text-align: center;
+    margin-bottom: 1rem; /* Space below header */
+    background: none; /* Header doesn't need an item background */
+    padding: 0;
+    box-shadow: none;
+    border: none;
+}
+.grid-header h1 {
+    font-size: 2.5rem; /* Slightly smaller for dashboard header */
+    text-shadow: 0 0 8px var(--primary-glow);
+}
+.grid-header p {
+    color: var(--secondary-glow);
+    margin-top: 0.25rem;
+}
+
+.grid-name {
+    grid-area: name;
+}
+.grid-name p {
+    font-size: 1.1rem;
+    color: #ccc;
+    margin-top: 0.5rem;
+    font-family: 'Roboto', sans-serif;
+}
+
+.grid-rank {
+    grid-area: rank;
+    text-align: right;
+    display: flex; /* Use flex to vertically align content */
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+}
+.grid-rank h2 {
+    margin-bottom: 0.5rem;
+}
+.grid-rank p {
+    margin: 0;
+    font-size: 1rem;
+    color: #ccc;
+}
+.grid-rank span {
+    font-size: 2.5rem;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--primary-glow);
+    text-shadow: 0 0 8px var(--primary-glow);
+}
+
+.grid-summary {
+    grid-area: summary;
+}
+.grid-summary p {
+    margin: 0.75rem 0 0 0;
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+}
+
+.grid-experience {
+    grid-area: experience;
+}
+
+.grid-skills {
+    grid-area: skills;
+}
+
+.grid-graph-quests {
+    grid-area: graph-quests;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background: none; /* This container itself doesn't have an item background */
+    padding: 0;
+    box-shadow: none;
+    border: none;
+}
+
+.grid-graph {
+    flex-grow: 1; /* Graph takes available space */
+    display: flex;
+    flex-direction: column;
+}
+.grid-graph canvas {
+    max-width: 100%;
+    height: auto;
+    margin-top: 1rem;
+}
+
+.grid-quests {
+    /* The button will take 100% width of its parent (.grid-quests) */
+    /* Handled by the generic button styling for width: 100%; */
+}
+
+
+/* --- Content scrollable areas --- */
+.section-content {
+    max-height: 220px; /* Limit height for scrollable sections */
+    overflow-y: auto; /* Enable vertical scrolling */
+    margin-top: 1rem;
+    padding-right: 1rem; /* Space for scrollbar */
+}
+
+/* Scrollbar styling for a consistent look */
+.section-content::-webkit-scrollbar {
+    width: 8px;
+}
+.section-content::-webkit-scrollbar-track {
+    background: var(--item-bg);
+    border-radius: 10px;
+}
+.section-content::-webkit-scrollbar-thumb {
+    background: var(--button-color);
+    border-radius: 10px;
+}
+.section-content::-webkit-scrollbar-thumb:hover {
+    background: var(--button-hover-color);
+}
+
+
+/* --- Experience List Items --- */
+.experience-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+.experience-item:last-child {
+    border-bottom: none; /* No border for the last item */
+}
+.experience-item h3 {
+    color: var(--text-color); /* Title of experience */
+    font-size: 1.1em;
+    margin-bottom: 0.25rem;
+}
+.experience-item small {
+    font-style: italic;
+    color: var(--secondary-glow); /* Category of experience */
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+}
+.experience-item p {
+    margin: 0.25rem 0 0 0;
+    font-family: 'Roboto', sans-serif;
+    color: #ccc;
+    font-size: 0.95em;
+}
+
+
+/* --- Skills List Items --- */
+.skill-category {
+    margin-top: 1rem;
+}
+.skill-category h3 {
+    margin-bottom: 0.75rem;
+}
+.skill-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap; /* Allows skills to wrap to next line */
+    gap: 0.75rem;
+}
+.skill-item {
+    background-color: #5a2a88; /* Darker purple for skill tags */
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    color: white;
+    font-weight: 400;
+}
+
+
+/* --- QUESTS VIEW --- */
+.quests-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.quests-header button {
+    width: auto; /* Allow back button to size naturally */
+    padding: 0.75rem 1.5rem;
+}
+
+.quest-item {
+    background: var(--item-bg);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 10px rgba(142, 68, 173, 0.08);
+    border: 1px solid var(--border-color);
+}
+.quest-item h3 {
+    font-size: 1.2em;
+    color: var(--secondary-glow);
+    margin-bottom: 0.5rem;
+}
+.quest-item p {
+    margin: 0.5rem 0;
+    line-height: 1.5;
+    color: #ccc;
+}
+.quest-item small {
+    font-weight: bold;
+    color: var(--primary-glow);
+    display: block; /* Ensures it's on its own line */
+    margin-top: 0.75rem;
+}
+
+
+/* --- FADE-IN ANIMATION --- */
+.fade-in {
+    animation: fadeInAnimation 0.8s ease-in-out forwards; /* 'forwards' keeps the end state */
+}
+@keyframes fadeInAnimation {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* --- RESPONSIVENESS --- */
+@media (max-width: 900px) {
+    .dashboard-container {
+        grid-template-areas:
+            "header header"
+            "name rank"
+            "summary summary"
+            "experience experience"
+            "skills skills"
+            "graph-quests graph-quests"; /* Graph and quests take full width */
+        grid-template-columns: 1fr 1fr; /* Two columns */
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 1rem;
+    }
+    .container {
+        padding: 1rem;
+    }
+    .dashboard-container {
+        grid-template-areas:
+            "header"
+            "name"
+            "rank"
+            "summary"
+            "experience"
+            "skills"
+            "graph-quests"; /* Single column layout */
+        grid-template-columns: 1fr;
+    }
+    .grid-rank {
+        text-align: left; /* Align rank to left in single column */
+        align-items: flex-start;
+    }
+    .upload-header h1 {
+        font-size: 2.2rem;
+    }
+}
